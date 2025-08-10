@@ -14,7 +14,7 @@ chapter : false
 ### Content
  1. [Introduction ](1-introduce/)
  2. [Preparation](2-prerequiste/)
- 3. [Connect to EC2 instance](3-accessibilitytoinstances/)
- 4. [Manage session logs](4-s3log/)
- 5. [Port Forwarding](5-Portfwd/)
+ 3. [Configuration 'ml-style' detection](3-Configurationml-style/)
+ 4. [Add Custom Rules to WAF](4-rulesWAF/)
+ 5. [Test & Validation](5-Portfwd/)
  6. [Clean up resources](6-cleanup/)
