@@ -1,0 +1,120 @@
+[
+{
+	"uri": "//localhost:1313/vi/4-ruleswaf/4.1-updateiamrole/",
+	"title": "Cập nhật IAM Role",
+	"tags": [],
+	"description": "",
+	"content": "Để các EC2 instance của chúng ta có thể gửi session log tới S3 bucket , chúng ta sẽ cần cập nhật IAM Role đã gán vào EC2 instance bằng cách thêm vào policy cho phép quyền truy cập vào S3.\nCập nhật IAM Role Truy cập vào giao diện quản trị dịch vụ IAM Click Roles. Tại ô tìm kiếm , điền SSM. Click vào role SSM-Role. Click Attach policies. Tại ô Search điền S3. Click chọn policy AmazonS3FullAccess. Click Attach policy. Trong thực tế chúng ta sẽ cấp quyền chặt chẽ hơn tới S3 bucket chỉ định. Trong khuôn khổ bài lab này chúng ta sử dụng policy AmazonS3FullAccess cho tiện dụng.\nTiếp theo chúng ta sẽ tiến hành tạo S3 bucket để lưu trữ session logs.\n"
+},
+{
+	"uri": "//localhost:1313/vi/1-introduce/",
+	"title": "Giới thiệu",
+	"tags": [],
+	"description": "",
+	"content": "Web Application Firewall (WAF) là một dịch vụ của Amazon Web Services (AWS) cho phép người dùng bảo vệ các ứng dụng web khỏi các cuộc tấn công trên mạng bằng cách chặn các yêu cầu không mong muốn hoặc độc hại trước khi chúng đến được tới ứng dụng web. WAF AWS có thể xác định và chặn các yêu cầu web không mong muốn hoặc độc hại như các cuộc tấn công DDoS, SQL Injection, Cross-site scripting (XSS) và các cuộc tấn công khác. WAF AWS hoạt động bằng cách sử dụng các quy tắc bảo mật để phân tích các yêu cầu đến ứng dụng web và chặn các yêu cầu không phù hợp với quy tắc đó.\nUsing Web Application Firewall (WAF) provides users with many security features, including:\nBảo vệ trước các cuộc tấn công DDoS, SQL Injection, XSS và các cuộc tấn công khác. Cấu hình quy tắc bảo mật linh hoạt để phù hợp với nhu cầu bảo mật của doanh nghiệp. Tích hợp với các dịch vụ khác của AWS như Amazon CloudFront, AWS Application Load Balancer, AWS Elastic Beanstalk, AWS API Gateway để cung cấp một giải pháp bảo mật toàn diện cho ứng dụng web. Tính năng giám sát và báo cáo để giúp người dùng quản lý các cuộc tấn công và đảm bảo tính ổn định và hiệu suất của ứng dụng web. "
+},
+{
+	"uri": "//localhost:1313/vi/",
+	"title": "Session Management",
+	"tags": [],
+	"description": "",
+	"content": "Tường lửa ứng dụng web (WAF) ứng dụng Quy tắc học máy Tổng quan Trong bài lab này, bạn sẽ học cách triển khai AWS WAF với các quy tắc ML để bảo vệ ứng dụng, theo dõi lưu lượng truy cập và kiểm tra khả năng phát hiện các cuộc tấn công.\nNội dung Giới thiệu Các bước chuẩn bị Tạo kết nối đến máy chủ EC2 Quản lý session logs Port Forwarding Dọn dẹp tài nguyên "
+},
+{
+	"uri": "//localhost:1313/vi/2-prerequiste/2.1-createwebsample/2.1.1-createdistributions/",
+	"title": "Tạo CloudFront Distributions cho web tĩnh S3",
+	"tags": [],
+	"description": "",
+	"content": "Tạo CloudFront Distribution Mở dịch vụ CloudFront Trong AWS Management Console, tìm CloudFront → Create distribution. Specify Origin Origin type: Chọn Amazon S3. Origin domain: Chọn bucket S3 đã tạo. Nếu bucket đã bật Static website hosting → nhấn Use website endpoint để CloudFront phục vụ đúng file index.html. Allow private S3 bucket access to CloudFront: bật nếu muốn giới hạn truy cập chỉ qua CloudFront. Cấu hình Cache \u0026amp; Security Viewer protocol policy: Redirect HTTP to HTTPS. Default root object: index.html. Bỏ qua bước Enable security nếu bạn muốn tiết kiệm phí Ở bước Enable security (WAF): Chọn Do not enable security protections để chưa gắn WAF. Sau này vào AWS WAF console để gắn WebACL khi cần test. Tạo Distribution Nhấn Create distribution. Chờ trạng thái Deployed. "
+},
+{
+	"uri": "//localhost:1313/vi/3-configurationml-style/3.1-createlambda/",
+	"title": "Tạo Lambda Function kiểm tra log WAF",
+	"tags": [],
+	"description": "",
+	"content": "Mục tiêu: Lambda sẽ nhận log từ WAF (CloudWatch Logs hoặc Kinesis), phân tích và phát hiện dấu hiệu tấn công dựa trên logic ML hoặc rule tùy chỉnh. Bắt đầu thực hiện Vào Lambda Console: truy cập AWS Lambda Console\nNhấp chọn Create a function Sau khi hiển thị lên chọn cách tạo gồm:\nAuthor from scratch Function name: waf-ml-detection Runtime: Python 3.10 (hoặc Node.js) Architecture: x86_64 Permissions: Chọn Create a new role with basic Lambda permissions. Chọn Create function Thêm quyền đọc log Sau khi tạo xong Lambda → vào tab Configuration → Permissions. Chọn Role name để mở IAM Role. Trong Role cuộn xuống tìm Add permissions sau đó chọn Attach policies và gắn: CloudWatchLogsReadOnlyAccess (đọc log) AWSWAFReadOnlyAccess (nếu cần đọc cấu hình WAF) Viết code Lambda Quay lại tab Code bên lambda, thay nội dung bằng mẫu Python cơ bản: import json def lambda_handler(event, context): for record in event[\u0026#39;records\u0026#39;]: payload = json.loads(record[\u0026#39;data\u0026#39;]) # Log payload để debug print(json.dumps(payload)) # Ví dụ rule: phát hiện nếu request chứa SQL injection pattern if \u0026#34;UNION\u0026#34; in payload.get(\u0026#34;httpRequest\u0026#34;, {}).get(\u0026#34;uri\u0026#34;, \u0026#34;\u0026#34;).upper(): print(\u0026#34;🚨 Detected possible SQL injection attack!\u0026#34;) # Ở đây có thể gửi alert hoặc gọi API WAF để block IP return {\u0026#34;statusCode\u0026#34;: 200, \u0026#34;body\u0026#34;: \u0026#34;Processed\u0026#34;} Deploy code "
+},
+{
+	"uri": "//localhost:1313/vi/2-prerequiste/2.1-createwebsample/",
+	"title": "Tạo trang web tĩnh S3",
+	"tags": [],
+	"description": "",
+	"content": "Khởi tạo S3 Bucket Truy cập AWS Management Console\nĐăng nhập bằng tài khoản của bạn.\nSau khi đăng nhập xong sẽ chuyển người dùng đến trang chính của AWS Manage Console như hình :\nTìm và mở dịch vụ S3.\nNhấn Create bucket ở trang chủ và điền các thông tin sau: AWS Region Chọn cùng region với WAF (ví dụ: us-east-1) Bucket name waf-demo-yourname Trong mục Object Ownership, ta chọn ACLs disabled (recommended).\nKế tiếp ở phần Block Public Access settings:\nBỏ chọn Block all public access. Tích vào I acknowledge that the current settings might result in this bucket and the objects within becoming public. Giữ nguyên cài đặt khác mặc định, sau đó nhấn Create bucket.\nUpload file index.html Tạo file index.html với nội dung cơ bản: \u0026lt;!DOCTYPE html\u0026gt; \u0026lt;html\u0026gt; \u0026lt;head\u0026gt;\u0026lt;title\u0026gt;WAF Demo\u0026lt;/title\u0026gt;\u0026lt;/head\u0026gt; \u0026lt;body\u0026gt;\u0026lt;h1\u0026gt;Hello WAF!\u0026lt;/h1\u0026gt;\u0026lt;/body\u0026gt; \u0026lt;/html\u0026gt; Truy cập bucket vừa tạo → Nhấn Upload. Chọn file index.html và nhấn Upload. Bật Static Website Hosting Trong bucket, mở tab Properties\nCuộn xuống Static website hosting → Nhấn Edit.\nChọn Enable.\nỞ phần Hosting type, chọn Host a static website.\nMục Index document: nhập index.html.\nNhấn Save changes.\nSao chép Endpoint URL được hiển thị.\nChụp màn hình: Endpoint URL sau khi bật static website hosting\nCấp quyền Public Access Vào tab Permissions của bucket. Cuộn xuống ngay tại phần Bucket policy, nhấn Edit và dán đoạn policy sau, đổi bằng tên bucket của bạn: { \u0026#34;Version\u0026#34;: \u0026#34;2012-10-17\u0026#34;, \u0026#34;Statement\u0026#34;: [ { \u0026#34;Sid\u0026#34;: \u0026#34;PublicReadGetObject\u0026#34;, \u0026#34;Effect\u0026#34;: \u0026#34;Allow\u0026#34;, \u0026#34;Principal\u0026#34;: \u0026#34;*\u0026#34;, \u0026#34;Action\u0026#34;: \u0026#34;s3:GetObject\u0026#34;, \u0026#34;Resource\u0026#34;: \u0026#34;arn:aws:s3:::\u0026lt;your-bucket-name\u0026gt;/*\u0026#34; } ] } Nhấn Save changes. Kiểm tra truy cập: Truy cập lại trình duyệt thông qua Endpoint URL mà bạn đã tạo trước đó, nếu thấy nội dung \u0026ldquo;Hello WAF!\u0026rdquo; nghĩa là bạn đã thành công.\n"
+},
+{
+	"uri": "//localhost:1313/vi/2-prerequiste/",
+	"title": "Các bước chuẩn bị",
+	"tags": [],
+	"description": "",
+	"content": "Trong phần này, bạn sẽ tạo môi trường demo để sẵn sàng triển khai WAF thông minh, gồm:\nỨng dụng web mẫu để WAF bảo vệ (S3 hoặc EC2). AWS WAF WebACL để chặn các truy cập nguy hiểm. CloudWatch Log Group để ghi lại các sự kiện bảo mật từ WAF Để tìm hiểu cách tạo các EC2, S3,\u0026hellip; các bạn có thể tham khảo bài lab :\nGiới thiệu về Amazon EC2 Làm việc với Amazon S3 Làm việc với Amazon WAF Giới thiệu về Amazon Lambda Nội dung Chuẩn bị VPC và EC2 Instance Tạo WAF WebACL và gán vào resource Bật logging và tạo Log Group "
+},
+{
+	"uri": "//localhost:1313/vi/3-configurationml-style/3.2-subscribelambda/",
+	"title": "Subscribe Lambda với Log Group",
+	"tags": [],
+	"description": "",
+	"content": " Thông qua đường link truy cập này để quay về trang CloudWatch Console: CloudWatch Console\nTìm Log Group mà bạn đã cấu hình ở bước trước cho WAF Chọn Log Group → Actions → Create subscription filter. Chọn các mục sau gồm có:\nDestination: Lambda function Lambda: waf-ml-detection Đặt tên Subscription filter name: waf-logs-to-lambda Filter pattern: Để trống (nghĩa là gửi tất cả log).\nXác nhận và tạo. "
+},
+{
+	"uri": "//localhost:1313/vi/4-ruleswaf/4.2-creates3bucket/",
+	"title": "Tạo S3 Bucket",
+	"tags": [],
+	"description": "",
+	"content": "Trong bước này, chúng ta sẽ tạo 1 S3 bucket để lưu trữ các session logs được gửi từ các EC2 instance.\nTạo S3 Bucket Truy cập giao diện quản trị dịch vụ S3 Click Create bucket. Tại trang Create bucket. Tại mục Bucket name điền tên bucket lab-yourname-bucket-0001 Tại mục Region chọn Region bạn đang làm lab hiện tại. Tên S3 bucket phải đảm bảo không trùng với toàn bộ S3 bucket khác trong hệ thống. Bạn có thể thay thế tên mình và điền số ngẫu nhiên khi tạo tên S3 bucket.\nKéo chuột xuống phía dưới và click Create bucket. Khi tạo S3 bucket chúng ta đã thực hiện Block all public access nên các EC2 instance của chúng ta sẽ không thể kết nối tới S3 thông qua mạng internet. Trong bước tiếp theo chúng ta sẽ cấu hình tính năng S3 Gateway Endpoint để cho phép các EC2 instance có thể kết nối tới S3 bucket thông qua mạng nội bộ của VPC.\n"
+},
+{
+	"uri": "//localhost:1313/vi/2-prerequiste/2.2-createwafwebacl/",
+	"title": "Tạo WAF WebACL và gán vào resource",
+	"tags": [],
+	"description": "",
+	"content": "Tạo một WebACL Quay lại trang chủ AWS console và mở AWS WAF console Tiếp đó chọn WebACLs và nhấp chọn Create WebACL Tên WebACL: Ví dụ ML-WAF-Demo.\nAdd AWS Resources → chọn resource muốn bảo vệ (chọn CloudFront distribution mà chúng ta đã tạo trước đó).\nRules: Tạm để trống (sẽ thêm ở bước tiếp theo).\nDefault action: Allow.\nHoàn tất tạo WebACL. "
+},
+{
+	"uri": "//localhost:1313/vi/2-prerequiste/2.3-turnonloggingcreateloggroup/",
+	"title": "Bật logging và tạo Log Group",
+	"tags": [],
+	"description": "",
+	"content": "Mục tiêu: Ghi lại log request vào CloudWatch Logs để sau này dùng ML model phân tích.\nVào lại AWS WAF console → WebACLs\nChọn WebACL mà bạn vừa tạo.\nSau khi hiện lên thông tin WebACL mà bạn đã tạo chọn mục Logging and Metrics\nChọn Enable ở góc phải\nChọn Logging destination\nChọn CloudWatch Logs (phổ biến nhất) Nếu chưa có Log Group:\nMở tab mới vào CloudWatch → Log groups → Create log group.\nĐặt tên (ví dụ: /aws/waf/ml-waf-logs). Quay lại màn hình WAF, chọn Log Group vừa tạo.\nNhấp save và bạn đã thành công bật logging "
+},
+{
+	"uri": "//localhost:1313/vi/3-configurationml-style/",
+	"title": "Cấu hình ML-style detection",
+	"tags": [],
+	"description": "",
+	"content": "Trong bước này, chúng ta sẽ thực hiện các công đoạn gồm:\nThu thập và phân tích log từ đó trích xuất đặc trưng (features) từ các request. Huấn luyện hoặc áp dụng mô hình ML để nhận diện pattern tấn công. Tạo luật WAF động (dynamic rules) dựa trên kết quả ML. Nội dung 3.1. Tạo Lambda Function kiểm tra log WAF 3.2. Subscribe Lambda với Log Group\n"
+},
+{
+	"uri": "//localhost:1313/vi/4-ruleswaf/",
+	"title": "Thêm Custom Rules vào WAF",
+	"tags": [],
+	"description": "",
+	"content": "Với Session Manager chúng ta có thể xem được lịch sử các kết nối tới các instance thông qua Session history. Tuy nhiên chúng ta chưa xem được chi tiết các câu lệnh được sử dụng.\nTrong phần này chúng ta sẽ tiến hành tạo S3 bucket và thực hiện cấu hình lưu trữ các session logs để xem được chi tiết các câu lệnh được sử dụng trong session.\nNội dung: Cập nhật IAM Role Tạo S3 Bucket Tạo S3 Gateway endpoint Cấu hình Session logs "
+},
+{
+	"uri": "//localhost:1313/vi/5-portfwd/",
+	"title": "Port Forwarding",
+	"tags": [],
+	"description": "",
+	"content": "\rPort Forwarding là mốt cách thức hữu ích để chuyển hướng lưu lượng mạng từ 1 địa chỉ IP - Port này sang 1 địa chỉ IP - Port khác. Với Port Forwarding chúng ta có thể truy cập một EC2 instance nằm trong private subnet từ máy trạm của chúng ta.\nChúng ta sẽ cấu hình Port Forwarding cho kết nối RDP giữa máy của mình với Private Windows Instance nằm trong private subnet mà chúng ta đã tạo cho bài thực hành này.\nTạo IAM User có quyền kết nối SSM Truy cập vào giao diện quản trị dịch vụ IAM Click Users , sau đó click Add users. Tại trang Add user. Tại mục User name, điền Portfwd. Click chọn Access key - Programmatic access. Click Next: Permissions. Click Attach existing policies directly. Tại ô tìm kiếm , điền ssm. Click chọn AmazonSSMFullAccess. Click Next: Tags, click Next: Reviews. Click Create user. Lưu lại thông tin Access key ID và Secret access key để thực hiện cấu hình AWS CLI. Cài đặt và cấu hình AWS CLI và Session Manager Plugin Để thực hiện phần thực hành này, đảm bảo máy trạm của bạn đã cài AWS CLI và Session Manager Plugin\nBạn có thể tham khảo thêm bài thực hành về cài đặt và cấu hình AWS CLI tại đây.\nVới Windows thì khi giải nén thư mục cài đặt Session Manager Plugin bạn hãy chạy file install.bat với quyền Administrator để thực hiện cài đặt.\nThực hiện Portforwarding Chạy command dưới đây trong Command Prompt trên máy của bạn để cấu hình Port Forwarding. aws ssm start-session --target (your ID windows instance) --document-name AWS-StartPortForwardingSession --parameters portNumber=\u0026#34;3389\u0026#34;,localPortNumber=\u0026#34;9999\u0026#34; --region (your region) Thông tin Instance ID của Windows Private Instance có thể tìm được khi bạn xem chi tiết máy chủ EC2 Windows Private Instance.\nCâu lệnh ví dụ C:\\Windows\\system32\u0026gt;aws ssm start-session --target i-06343d7377486760c --document-name AWS-StartPortForwardingSession --parameters portNumber=\u0026#34;3389\u0026#34;,localPortNumber=\u0026#34;9999\u0026#34; --region ap-southeast-1 Nếu câu lệnh của bạn báo lỗi như dưới đây : SessionManagerPlugin is not found. Please refer to SessionManager Documentation here: http://docs.aws.amazon.com/console/systems-manager/session-manager-plugin-not-found\nChứng tỏ bạn chưa cài Session Manager Plugin thành công. Bạn có thể cần khởi chạy lại Command Prompt sau khi cài Session Manager Plugin.\nKết nối tới Private Windows Instance bạn đã tạo bằng công cụ Remote Desktop trên máy trạm của bạn. Tại mục Computer: điền localhost:9999. Quay trở lại giao diện quản trị của dịch vụ System Manager - Session Manager. Click tab Session history. Chúng ta sẽ thấy các session logs với tên Document là AWS-StartPortForwardingSession. Chúc mừng bạn đã hoàn tất bài thực hành hướng dẫn cách sử dụng Session Manager để kết nối cũng như lưu trữ các session logs trong S3 bucket. Hãy nhớ thực hiện bước dọn dẹp tài nguyên để tránh sinh chi phí ngoài ý muốn nhé.\n"
+},
+{
+	"uri": "//localhost:1313/vi/6-cleanup/",
+	"title": "Dọn dẹp tài nguyên  ",
+	"tags": [],
+	"description": "",
+	"content": "Chúng ta sẽ tiến hành các bước sau để xóa các tài nguyên chúng ta đã tạo trong bài thực hành này.\nXóa EC2 instance Truy cập giao diện quản trị dịch vụ EC2 Click Instances. Click chọn cả 2 instance Public Linux Instance và Private Windows Instance. Click Instance state. Click Terminate instance, sau đó click Terminate để xác nhận. Truy cập giao diện quản trị dịch vụ IAM Click Roles. Tại ô tìm kiếm , điền SSM. Click chọn SSM-Role. Click Delete, sau đó điền tên role SSM-Role và click Delete để xóa role. Click Users. Click chọn user Portfwd. Click Delete, sau đó điền tên user Portfwd và click Delete để xóa user. Xóa S3 bucket Truy cập giao diện quản trị dịch vụ System Manager - Session Manager. Click tab Preferences. Click Edit. Kéo chuột xuống dưới. Tại mục S3 logging. Bỏ chọn Enable để tắt tính năng logging. Kéo chuột xuống dưới. Click Save. Truy cập giao diện quản trị dịch vụ S3 Click chọn S3 bucket chúng ta đã tạo cho bài thực hành. ( Ví dụ : lab-fcj-bucket-0001 ) Click Empty. Điền permanently delete, sau đó click Empty để tiến hành xóa object trong bucket. Click Exit. Sau khi xóa hết object trong bucket, click Delete Điền tên S3 bucket, sau đó click Delete bucket để tiến hành xóa S3 bucket. Xóa các VPC Endpoint Truy cập vào giao diện quản trị dịch vụ VPC Click Endpoints. Chọn 4 endpoints chúng ta đã tạo cho bài thực hành bao gồm SSM, SSMMESSAGES, EC2MESSAGES, S3GW. Click Actions. Click Delete VPC endpoints. Tại ô confirm , điền delete. Click Delete để tiến hành xóa các endpoints. Click biểu tượng refresh, kiểm tra tất cả các endpoints đã bị xóa trước khi làm bước tiếp theo. Xóa VPC Truy cập vào giao diện quản trị dịch vụ VPC Click Your VPCs. Click chọn Lab VPC. Click Actions. Click Delete VPC. Tại ô confirm, điền delete để xác nhận, click Delete để thực hiện xóa Lab VPC và các tài nguyên liên quan. "
+},
+{
+	"uri": "//localhost:1313/vi/categories/",
+	"title": "Categories",
+	"tags": [],
+	"description": "",
+	"content": ""
+},
+{
+	"uri": "//localhost:1313/vi/tags/",
+	"title": "Tags",
+	"tags": [],
+	"description": "",
+	"content": ""
+}]

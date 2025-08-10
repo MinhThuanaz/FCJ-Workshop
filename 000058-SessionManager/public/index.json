@@ -1,0 +1,120 @@
+[
+{
+	"uri": "//localhost:1313/3-configurationml-style/3.1-createlambda/",
+	"title": "Create Lambda Function check the log waf",
+	"tags": [],
+	"description": "",
+	"content": ""
+},
+{
+	"uri": "//localhost:1313/2-prerequiste/2.1-createwebsample/2.1.1-createdistributions/",
+	"title": "Creating CloudFront Distributions for S3 static web",
+	"tags": [],
+	"description": "",
+	"content": ""
+},
+{
+	"uri": "//localhost:1313/2-prerequiste/2.1-createwebsample/",
+	"title": "Creating S3 Static Website",
+	"tags": [],
+	"description": "",
+	"content": ""
+},
+{
+	"uri": "//localhost:1313/1-introduce/",
+	"title": "Introduction",
+	"tags": [],
+	"description": "",
+	"content": "Web Application Firewall (WAF) is a service of Amazon Web Services (AWS) that allows users to protect web applications from online attacks by blocking unwanted or malicious requirements before they reach the web application. WAF AWS can identify and block unwanted or malicious web requirements such as DDOS, SQL Injection, Cross-Site scripting (XSS) and other attacks. WAF AWS works by using security rules to analyze requirements to web applications and block requirements that are not consistent with that rule.\nUsing Web Application Firewall (WAF) provides users with many security features, including:\nProtect against DDOS attacks, SQL Injection, XSS and other attacks. Configure flexible security rules to suit the security needs of the business. Integrated with other AWS services such as Amazon CloudFront, AWS Application Load Balancer, AWS Elastic Beanstalk, AWS API Gateway to provide a comprehensive security solution for web applications. Monitoring and reporting features to help users manage attacks and ensure the stability and performance of the web application. "
+},
+{
+	"uri": "//localhost:1313/",
+	"title": "Session Management",
+	"tags": [],
+	"description": "",
+	"content": "Web Application Firewall (WAF) using Machine Learning Rules Overall In this lab, you\u0026rsquo;ll learn how to deploy AWS WAF with ML Rules to protect the application, track traffic and check the ability to detect attacks.\nContent Introduction Preparation Connect to EC2 instance Manage session logs Port Forwarding Clean up resources "
+},
+{
+	"uri": "//localhost:1313/4-ruleswaf/4.1-updateiamrole/",
+	"title": "Update IAM Role",
+	"tags": [],
+	"description": "",
+	"content": "For our EC2 instances to be able to send session logs to the S3 bucket, we will need to update the IAM Role assigned to the EC2 instance by adding a policy that allows access to S3.\nUpdate IAM Role Go to IAM service management console Click Roles. In the search box, enter SSM. Click on the SSM-Role role. Click Attach policies. In the Search box enter S3. Click the policy AmazonS3FullAccess. Click Attach policy. In the production environment, we will grant stricter permissions to the specified S3 bucket. In the framework of this lab, we use the policy AmazonS3FullAccess for convenience.\nNext, we will proceed to create an S3 bucket to store session logs.\n"
+},
+{
+	"uri": "//localhost:1313/4-ruleswaf/4.2-creates3bucket/",
+	"title": "Create S3 Bucket",
+	"tags": [],
+	"description": "",
+	"content": "In this step, we will create an S3 bucket to store session logs sent from EC2 instances.\nCreate S3 Bucket Access S3 service management console Click Create bucket. At the Create bucket page. In the Bucket name field, enter the bucket name lab-yourname-bucket-0001 In the Region section, select Region you are doing the current lab. The name of the S3 bucket must not be the same as all other S3 buckets in the system. You can substitute your name and enter a random number when generating the S3 bucket name.\nScroll down and click Create bucket. When we created the S3 bucket we did Block all public access so our EC2 instances won\u0026rsquo;t be able to connect to S3 via the internet. In the next step, we will configure the S3 Gateway Endpoint feature to allow EC2 instances to connect to the S3 bucket via the VPC\u0026rsquo;s internal network.\n"
+},
+{
+	"uri": "//localhost:1313/2-prerequiste/2.2-createwafwebacl/",
+	"title": "Create WAF WebaCl and assign to Resource",
+	"tags": [],
+	"description": "",
+	"content": "Create IAM Role In this step, we will proceed to create IAM Role. In this IAM Role, the policy AmazonSSMManagedInstanceCore will be assigned, this is the policy that allows the EC2 server to communicate with the Session Manager.\nGo to IAM service administration interface In the left navigation bar, click Roles. Click Create role. Click AWS service and click EC2. Click Next: Permissions. In the Search box, enter AmazonSSMManagedInstanceCore and press Enter to search for this policy. Click the policy AmazonSSMManagedInstanceCore. Click Next: Tags. Click Next: Review. Name the Role SSM-Role in Role Name Click Create Role . Next, we will make the connection to the EC2 servers we created with Session Manager.\n"
+},
+{
+	"uri": "//localhost:1313/2-prerequiste/",
+	"title": "Preparation ",
+	"tags": [],
+	"description": "",
+	"content": "In this section, you will create a demo environment to be ready to deploy smart WAF, including:\nSample web application for WAF to protect (S3 or EC2). AWS WAF Webacl to block dangerous access. Cloudwatch Log Group to record security events from WAF To learn how to create EC2, S3, \u0026hellip; you can refer to the Lab:\nIntroduction to Amazon EC2 Working with Amazon S3 Working with Amazon WAF Introduction to Amazon Lambda Content Creating S3 Static Website Create WAF WebaCl and assign to Resource Turn on logging and create Log Group "
+},
+{
+	"uri": "//localhost:1313/3-configurationml-style/3.2-subscribelambda/",
+	"title": "Subscribe Lambda with log group",
+	"tags": [],
+	"description": "",
+	"content": ""
+},
+{
+	"uri": "//localhost:1313/3-configurationml-style/",
+	"title": "Configuration &#39;ml-style&#39; detection",
+	"tags": [],
+	"description": "",
+	"content": "In this step, we will perform the stages including:\nCollect and analyze the log from the characteristic extract (features) from the requests. Train or apply ML model to identify attacks. Create dynamic waf law (dynamic rules) based on ML results. Content 3.1. Create Lambda Function check the log waf 3.2. Subscribe Lambda with log group\n"
+},
+{
+	"uri": "//localhost:1313/2-prerequiste/2.3-turnonloggingcreateloggroup/",
+	"title": "Turn on logging and create Log Group",
+	"tags": [],
+	"description": "",
+	"content": ""
+},
+{
+	"uri": "//localhost:1313/4-ruleswaf/",
+	"title": "Add Custom Rules to WAF",
+	"tags": [],
+	"description": "",
+	"content": "Content: Update IAM Role Create S3 Bucket Create S3 Gateway endpoint Configure Session logs "
+},
+{
+	"uri": "//localhost:1313/5-portfwd/",
+	"title": "Port Forwarding",
+	"tags": [],
+	"description": "",
+	"content": "\rPort Forwarding is a useful way to redirect network traffic from one IP address - Port to another IP address - Port. With Port Forwarding we can access an EC2 instance located in the private subnet from our workstation.\nWe will configure Port Forwarding for the RDP connection between our machine and Private Windows Instance located in the private subnet we created for this exercise.\nCreate IAM user with permission to connect SSM Go to IAM service management console Click Users , then click Add users. At the Add user page. In the User name field, enter Portfwd. Click on Access key - Programmatic access. Click Next: Permissions. Click Attach existing policies directly.\nIn the search box, enter ssm. Click on AmazonSSMFullAccess. Click Next: Tags, click Next: Reviews. Click Create user. Save Access key ID and Secret access key information to perform AWS CLI configuration.\nInstall and Configure AWS CLI and Session Manager Plugin To perform this hands-on, make sure your workstation has AWS CLI and Session Manager Plugin installed -manager-working-with-install-plugin.html)\nMore hands-on tutorials on installing and configuring the AWS CLI can be found here.\nWith Windows, when extracting the Session Manager Plugin installation folder, run the install.bat file with Administrator permission to perform the installation.\nImplement Portforwarding Run the command below in Command Prompt on your machine to configure Port Forwarding. aws ssm start-session --target (your ID windows instance) --document-name AWS-StartPortForwardingSession --parameters portNumber=\u0026#34;3389\u0026#34;,localPortNumber=\u0026#34;9999\u0026#34; --region (your region) Windows Private Instance Instance ID information can be found when you view the EC2 Windows Private Instance server details.\nExample command: C:\\Windows\\system32\u0026gt;aws ssm start-session --target i-06343d7377486760c --document-name AWS-StartPortForwardingSession --parameters portNumber=\u0026#34;3389\u0026#34;,localPortNumber=\u0026#34;9999\u0026#34; --region ap-southeast-1 If your command gives an error like below: SessionManagerPlugin is not found. Please refer to SessionManager Documentation here: http://docs.aws.amazon.com/console/systems-manager/session-manager-plugin-not-found\nProve that you have not successfully installed the Session Manager Plugin. You may need to relaunch Command Prompt after installing Session Manager Plugin.\nConnect to the Private Windows Instance you created using the Remote Desktop tool on your workstation. In the Computer section: enter localhost:9999. Return to the administration interface of the System Manager - Session Manager service. Click tab Session history. We will see session logs with Document name AWS-StartPortForwardingSession. Congratulations on completing the lab on how to use Session Manager to connect and store session logs in S3 bucket. Remember to perform resource cleanup to avoid unintended costs.\n"
+},
+{
+	"uri": "//localhost:1313/6-cleanup/",
+	"title": "Clean up resources",
+	"tags": [],
+	"description": "",
+	"content": "We will take the following steps to delete the resources we created in this exercise.\nDelete EC2 instance Go to EC2 service management console\nClick Instances. Select both Public Linux Instance and Private Windows Instance instances. Click Instance state. Click Terminate instance, then click Terminate to confirm. Go to IAM service management console\nClick Roles. In the search box, enter SSM. Click to select SSM-Role. Click Delete, then enter the role name SSM-Role and click Delete to delete the role. Click Users. Click on user Portfwd. Click Delete, then enter the user name Portfwd and click Delete to delete the user. Delete S3 bucket Access System Manager - Session Manager service management console.\nClick the Preferences tab. Click Edit. Scroll down. In the section S3 logging. Uncheck Enable to disable logging. Scroll down. Click Save. Go to S3 service management console\nClick on the S3 bucket we created for this lab. (Example: lab-fcj-bucket-0001 ) Click Empty. Enter permanently delete, then click Empty to proceed to delete the object in the bucket. Click Exit. After deleting all objects in the bucket, click Delete\nEnter the name of the S3 bucket, then click Delete bucket to proceed with deleting the S3 bucket. Delete VPC Endpoints Go to VPC service management console Click Endpoints. Select the 4 endpoints we created for the lab including SSM, SSMMESSAGES, EC2MESSAGES, S3GW. Click Actions. Click Delete VPC endpoints. In the confirm box, enter delete.\nClick Delete to proceed with deleting endpoints. Click the refresh icon, check that all endpoints have been deleted before proceeding to the next step.\nDelete VPC Go to VPC service management console\nClick Your VPCs. Click on Lab VPC. Click Actions. Click Delete VPC. In the confirm box, enter delete to confirm, click Delete to delete Lab VPC and related resources.\n"
+},
+{
+	"uri": "//localhost:1313/categories/",
+	"title": "Categories",
+	"tags": [],
+	"description": "",
+	"content": ""
+},
+{
+	"uri": "//localhost:1313/tags/",
+	"title": "Tags",
+	"tags": [],
+	"description": "",
+	"content": ""
+}]
