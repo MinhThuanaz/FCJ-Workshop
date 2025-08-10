@@ -1,7 +1,7 @@
 # Change the default theme to be use when building the site with Hugo
 theme = "hugo-theme-learn"
 
-# Nếu repo là bất kỳ tên khác (project)   -> "https://<username>.github.io/<repo>/"
+# Nếu mà repo là bất kỳ tên khác (project)   -> "https://<username>.github.io/<repo>/"
 baseURL = "https://minhthuanaz.github.io/FCJ-Workshop/"
 
 publishDir = "docs"
