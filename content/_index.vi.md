@@ -9,7 +9,7 @@ chapter : false
 ### Tổng quan
 Trong bài lab này, bạn sẽ học cách triển khai AWS WAF với các quy tắc ML để bảo vệ ứng dụng, theo dõi lưu lượng truy cập và kiểm tra khả năng phát hiện các cuộc tấn công.
 
-![ConnectPrivate](/images/arc-log.png)
+![ConnectPrivate](/images/pic01.png)
 
 ### Nội dung
 

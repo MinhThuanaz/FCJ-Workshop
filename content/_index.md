@@ -9,7 +9,7 @@ chapter : false
 ### Overall
  In this lab, you'll learn how to deploy AWS WAF with ML Rules to protect the application, track traffic and check the ability to detect attacks.
 
-![ConnectPrivate](/images/arc-log.png) 
+![ConnectPrivate](/images/pic01.png) 
 
 ### Content
  1. [Introduction ](1-introduce/)
